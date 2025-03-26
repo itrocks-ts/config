@@ -1,0 +1,41 @@
+{
+	"author": {
+		"name": "Baptiste Pillot",
+		"email": "baptiste@pillot.fr"
+	},
+	"dependencies": {
+		"yaml": "^2.7"
+	},
+	"description": "",
+	"devDependencies": {
+		"typescript": "~5.6"
+	},
+	"engines": {
+		"node": ">=18"
+	},
+	"exports": "./cjs/config.js",
+	"homepage": "https://it.rocks",
+	"files": [
+		"LICENSE",
+		"README.md",
+		"cjs/*",
+		"!*.map"
+	],
+	"keywords": [
+		"backend",
+		"config",
+		"configuration",
+		"it.rocks"
+	],
+	"license": "ISC",
+	"name": "@itrocks/config",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/itrocks-ts/config.git"
+	},
+	"scripts": {
+		"build": "tsc -p tsconfig.json"
+	},
+	"types": "./cjs/config.d.ts",
+	"version": "0.0.1"
+}
