@@ -6,7 +6,7 @@
 	"dependencies": {
 		"yaml": "^2.7"
 	},
-	"description": "",
+	"description": "Loads and merges config.yaml files from all dependencies for unified, project-wide configuration",
 	"devDependencies": {
 		"typescript": "~5.6"
 	},
@@ -23,9 +23,17 @@
 	],
 	"keywords": [
 		"backend",
+		"bootstrap",
 		"config",
 		"configuration",
-		"it.rocks"
+		"consolidation",
+		"dependencies",
+		"it.rocks",
+		"loader",
+		"merge",
+		"settings",
+		"startup",
+		"yaml"
 	],
 	"license": "ISC",
 	"name": "@itrocks/config",
@@ -37,5 +45,5 @@
 		"build": "tsc -p tsconfig.json"
 	},
 	"types": "./cjs/config.d.ts",
-	"version": "0.0.1"
+	"version": "0.0.3"
 }
