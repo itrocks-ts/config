@@ -36,6 +36,16 @@ function mergeConfig(config: Config, merge: Config, path: string)
 {
 	Object.entries(merge).forEach(([key, value]) =>
 	{
+		if (key === '') {
+			if (value === null) {
+				for (const key in config) delete config[key]
+			}
+			return
+		}
+		if (value === null) {
+			delete config[key]
+			return
+		}
 		const pathValue = (value: string) => ((typeof value === 'string') && value.startsWith('./'))
 			? (path + value.slice(1))
 			: value
