@@ -34,11 +34,12 @@ function loadYaml(buffer: string, path: string)
 
 function mergeConfig(config: Config, merge: Config, path: string)
 {
-	Object.entries(merge).forEach(([key, value]) =>
-	{
+	Object.entries(merge).forEach(([key, value]) => {
 		if (key === '') {
 			if (value === null) {
-				for (const key in config) delete config[key]
+				for (const key in config) {
+					delete config[key]
+				}
 			}
 			return
 		}
