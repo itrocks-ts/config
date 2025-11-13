@@ -1,9 +1,9 @@
-import { appDir }   from '@itrocks/app-dir'
-import { readdir }  from 'node:fs/promises'
-import { readFile } from 'node:fs/promises'
-import { dirname }  from 'node:path'
-import { join }     from 'node:path'
-import { parse }    from 'yaml'
+import { appDir }       from '@itrocks/app-dir'
+import { dependencies } from '@itrocks/dependency'
+import { readFile }     from 'node:fs/promises'
+import { dirname }      from 'node:path'
+import { join }         from 'node:path'
+import { parse }        from 'yaml'
 
 export type Config = Record<string, any>
 
@@ -32,8 +32,16 @@ function loadYaml(buffer: string, path: string)
 	mergeConfig(config, parse(buffer), path)
 }
 
-function mergeConfig(config: Config, merge: Config, path: string)
+function mergeConfig(config: Config, merge: Config, path: string, prepend = false, depth = 0)
 {
+	const entries = prepend
+		? Object.entries(config)
+		: undefined
+	if (entries) {
+		for (const key in config) {
+			delete config[key]
+		}
+	}
 	Object.entries(merge).forEach(([key, value]) => {
 		if (key === '') {
 			if (value === null) {
@@ -66,31 +74,28 @@ function mergeConfig(config: Config, merge: Config, path: string)
 			return
 		}
 		if (typeof config[key] === 'object') {
-			mergeConfig(config[key], value, path)
+			mergeConfig(config[key], value, path, depth ? false : (key === 'menu'), depth + 1)
 			return
 		}
 		config[key] = pathValue(value)
 	})
+	if (entries) {
+		for (const [key, value] of entries) {
+			config[key] = value
+		}
+	}
 }
 
 async function scanModules(path: string, relativePathSlice = 0)
 {
-	const entries = await readdir(path, { withFileTypes: true })
-	await Promise.all(entries.map(async entry => {
-		if (!entry.isDirectory()) {
-			return
-		}
-		if (entry.name[0] === '@') {
-			await scanModules(join(path, entry.name), relativePathSlice)
-			return
-		}
-		await loadDir(join(path, entry.name), relativePathSlice)
-	}))
+	for (const module of await dependencies(path)) {
+		await loadDir(join(path, 'node_modules', module), relativePathSlice)
+	}
 }
 
 export async function scanConfigFiles(path = appDir)
 {
 	const relativePathSlice = path.startsWith(appDir) ? appDir.length : 0
-	await scanModules(join(path, 'node_modules'), relativePathSlice)
+	await scanModules(path, relativePathSlice)
 	await loadDir(path, relativePathSlice)
 }

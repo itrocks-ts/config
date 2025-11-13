@@ -4,6 +4,8 @@
 		"email": "baptiste@pillot.fr"
 	},
 	"dependencies": {
+		"@itrocks/app-dir": "latest",
+		"@itrocks/dependency": "latest",
 		"yaml": "^2.7"
 	},
 	"description": "Loads and merges config.yaml files from all dependencies for unified, project-wide configuration",
@@ -45,5 +47,5 @@
 		"build": "tsc"
 	},
 	"types": "./cjs/config.d.ts",
-	"version": "0.0.7"
+	"version": "0.0.8"
 }
