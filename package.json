@@ -6,11 +6,11 @@
 	"dependencies": {
 		"@itrocks/app-dir": "latest",
 		"@itrocks/dependency": "latest",
-		"yaml": "^2.7"
+		"yaml": "^2.8"
 	},
 	"description": "Loads and merges config.yaml files from all dependencies for unified, project-wide configuration",
 	"devDependencies": {
-		"typescript": "~5.8"
+		"typescript": "~5.9"
 	},
 	"engines": {
 		"node": ">=18"
@@ -47,5 +47,5 @@
 		"build": "tsc"
 	},
 	"types": "./cjs/config.d.ts",
-	"version": "0.0.8"
+	"version": "0.0.9"
 }
