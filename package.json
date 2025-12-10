@@ -30,10 +30,13 @@
 		"configuration",
 		"consolidation",
 		"dependencies",
+		"discovery",
 		"it.rocks",
 		"loader",
 		"merge",
+		"menu",
 		"settings",
+		"smtp",
 		"startup",
 		"yaml"
 	],
@@ -47,5 +50,5 @@
 		"build": "tsc"
 	},
 	"types": "./cjs/config.d.ts",
-	"version": "0.0.9"
+	"version": "0.0.10"
 }
