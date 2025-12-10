@@ -34,9 +34,7 @@
 		"it.rocks",
 		"loader",
 		"merge",
-		"menu",
 		"settings",
-		"smtp",
 		"startup",
 		"yaml"
 	],
@@ -50,5 +48,5 @@
 		"build": "tsc"
 	},
 	"types": "./cjs/config.d.ts",
-	"version": "0.0.10"
+	"version": "0.0.11"
 }
