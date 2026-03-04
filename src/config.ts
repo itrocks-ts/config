@@ -81,7 +81,9 @@ function mergeConfig(config: Config, merge: Config, path: string, prepend = fals
 	})
 	if (entries) {
 		for (const [key, value] of entries) {
-			config[key] = value
+			config[key] = ((typeof config[key] === 'object') && (typeof value === 'object'))
+				? {...config[key], ...value }
+				: value
 		}
 	}
 }
