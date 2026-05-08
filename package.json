@@ -10,17 +10,17 @@
 	},
 	"description": "Loads and merges config.yaml files from all dependencies for unified, project-wide configuration",
 	"devDependencies": {
-		"typescript": "~5.9"
+		"typescript": "^6.0"
 	},
 	"engines": {
-		"node": ">=18"
+		"node": ">=24"
 	},
 	"exports": "./cjs/config.js",
 	"homepage": "https://it.rocks",
 	"files": [
 		"LICENSE",
 		"README.md",
-		"cjs/*",
+		"cjs",
 		"!*.map"
 	],
 	"keywords": [
@@ -47,6 +47,5 @@
 	"scripts": {
 		"build": "tsc"
 	},
-	"types": "./cjs/config.d.ts",
-	"version": "0.1.0"
+	"version": "0.1.1"
 }
