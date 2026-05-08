@@ -10,6 +10,7 @@
 	},
 	"description": "Loads and merges config.yaml files from all dependencies for unified, project-wide configuration",
 	"devDependencies": {
+		"@types/node": "^24.10",
 		"typescript": "^6.0"
 	},
 	"engines": {
@@ -47,5 +48,5 @@
 	"scripts": {
 		"build": "tsc"
 	},
-	"version": "0.1.1"
+	"version": "0.1.2"
 }
