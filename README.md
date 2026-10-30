@@ -31,26 +31,12 @@ It looks for two files in each package directory:
 
 Both are ignored if missing.
 
-You normally:
-
-1. Call `scanConfigFiles()` once at application startup.
-2. Read values from the exported `config` object anywhere in your code.
-
-### Minimal example
+Read settings from the exported `config` object once application startup has loaded the configuration:
 
 ```ts
-import { config, scanConfigFiles } from '@itrocks/config'
+import { config } from '@itrocks/config'
 
-async function main()
-{
-  // Scan the app directory and all dependencies for config.yaml/local.yaml
-  await scanConfigFiles()
-
-  // Use the consolidated configuration
-  console.log('HTTP server port:', config.server?.port)
-}
-
-main().catch(console.error)
+console.log('HTTP server port:', config.server?.port)
 ```
 
 Example directory layout:
@@ -68,26 +54,7 @@ my-app/
 
 All these files are merged into a single `config` object.
 
-### Complete example with framework integration
-
-In a typical [it.rocks](https://it.rocks) application, [@itrocks/framework](https://itrocks-ts/framework) wires
-`@itrocks/config` for you:
-
-```ts
-import { compose }         from '@itrocks/compose'
-import { config }          from '@itrocks/config'
-import { scanConfigFiles } from '@itrocks/config'
-
-scanConfigFiles().then(() => {
-  const frameworkCompose = {
-    '@itrocks/store:Store': '/store-representative:Store'
-  }
-  compose(__dirname, Object.assign(frameworkCompose, config.compose))
-  require('@itrocks/default-action-workflow').build()
-  require('./dependencies').bind()
-  require('./main').run()
-})
-```
+### Module configuration example
 
 Each module can declare its own `config.yaml` and `local.yaml`. For example, a
 mail module could define SMTP settings:
@@ -129,10 +96,10 @@ this package as the `config` export.
 
 Global, mutable configuration object populated by `scanConfigFiles()`.
 
-#### Behavior
+#### Behaviour
 
 - Initially an empty object `{}`.
-- After calling `scanConfigFiles()` it contains the merged content of all
+- After configuration loading it contains the merged content of all
   discovered `config.yaml` and `local.yaml` files.
 - Properties can be nested, arrays, or scalars depending on what is declared
   in your YAML files.
@@ -158,6 +125,79 @@ rules:
 
 These rules allow modules and the main application to cooperate on a single
 configuration tree without stepping on each other.
+
+### `configPath(name: string, fallback: string): string`
+
+Resolves a top-level path setting as an absolute filesystem path. A value loaded from YAML is resolved against
+that file's directory, including `./` and `../` paths; absolute paths remain absolute.
+`local.yaml` overrides retain their own declaring directory.
+An absent setting uses `fallback` relative to `appDir`. Programmatically assigned paths also use `appDir`.
+Non-string settings throw `TypeError`.
+This helper does not change the existing representation of values in `config`.
+
+```ts
+import { configPath } from '@itrocks/config'
+const directory = configPath('dataPath', '../data')
+```
+
+
+## Typical use cases
+
+- **Centralized configuration for a full application**: collect `config.yaml`
+  from the app and every `@itrocks` module to get a single configuration
+  object.
+- **Module‑provided defaults**: ship sensible defaults in a module’s
+  `config.yaml`, and let the main app override them in its own `config.yaml`
+  or `local.yaml`.
+- **Environment‑specific overrides**: keep shared values in `config.yaml` and
+  developer‑ or environment‑specific ones in `local.yaml`, which may be
+  git‑ignored.
+- **Building menus and navigation**: use the special `menu` key in
+  configuration to let each module contribute its own entries, automatically
+  merged with others.
+- **Path‑based settings**: declare relative file system paths in YAML starting
+  with `./`, and let `@itrocks/config` resolve them against the module that
+  declares them.
+
+## Usage with the it.rocks framework
+
+The [it.rocks framework](https://github.com/itrocks-ts/framework) calls `scanConfigFiles()` during startup,
+before export composition, dependency binding and server startup. Read the exported `config` object after that scan;
+no additional scan is needed in application initialisers or request handlers.
+
+For startup code that reads configuration, register a callback through
+[`beforeFrameworkRun`](https://github.com/itrocks-ts/framework):
+
+```ts
+import { config }             from '@itrocks/config'
+import { beforeFrameworkRun } from '@itrocks/framework'
+
+beforeFrameworkRun(() => {
+  console.log('HTTP server port:', config.server?.port)
+})
+```
+
+## Usage outside the it.rocks framework
+
+Call `scanConfigFiles()` once at application startup, before reading settings or binding consumers.
+Other frameworks can await this call in their initialisation hook.
+
+### Minimal example
+
+```ts
+import { config, scanConfigFiles } from '@itrocks/config'
+
+async function main()
+{
+  // Scan the app directory and all dependencies for config.yaml/local.yaml
+  await scanConfigFiles()
+
+  // Use the consolidated configuration
+  console.log('HTTP server port:', config.server?.port)
+}
+
+main().catch(console.error)
+```
 
 ### `async function scanConfigFiles(path?: string): Promise<void>`
 
@@ -186,21 +226,3 @@ rules described above.
 - After the scan completes, reading from `config` is synchronous and cheap.
 - You normally do not need to call it again unless you expect configuration
   files to change at runtime.
-
-## Typical use cases
-
-- **Centralized configuration for a full application**: collect `config.yaml`
-  from the app and every `@itrocks` module to get a single configuration
-  object.
-- **Module‑provided defaults**: ship sensible defaults in a module’s
-  `config.yaml`, and let the main app override them in its own `config.yaml`
-  or `local.yaml`.
-- **Environment‑specific overrides**: keep shared values in `config.yaml` and
-  developer‑ or environment‑specific ones in `local.yaml`, which may be
-  git‑ignored.
-- **Building menus and navigation**: use the special `menu` key in
-  configuration to let each module contribute its own entries, automatically
-  merged with others.
-- **Path‑based settings**: declare relative file system paths in YAML starting
-  with `./`, and let `@itrocks/config` resolve them against the module that
-  declares them.

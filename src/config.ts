@@ -3,11 +3,22 @@ import { dependencies } from '@itrocks/dependency'
 import { readFile }     from 'node:fs/promises'
 import { dirname }      from 'node:path'
 import { join }         from 'node:path'
+import { resolve }      from 'node:path'
 import { parse }        from 'yaml'
 
 export type Config = Record<string, any>
 
 export const config: Config = {}
+
+const pathSources = new Map<string, { path: string; value: unknown }>()
+
+export function configPath(name: string, fallback: string): string
+{
+	const value = config[name] ?? fallback
+	if (typeof value !== 'string') throw new TypeError(`Configuration ${name} must be a path`)
+	const source = pathSources.get(name)
+	return config[name] !== undefined && source?.value === value ? source.path : resolve(appDir, value)
+}
 
 async function loadDir(path: string, relativePathSlice = 0)
 {
@@ -24,12 +35,19 @@ async function loadFile(file: string, relativePathSlice = 0)
 	catch {
 		return
 	}
-	loadYaml(yaml, relativePathSlice ? dirname(file).slice(relativePathSlice) : dirname(file))
+	loadYaml(yaml, relativePathSlice ? dirname(file).slice(relativePathSlice) : dirname(file), dirname(file))
 }
 
-function loadYaml(buffer: string, path: string)
+function loadYaml(buffer: string, path: string, sourceDirectory: string)
 {
-	mergeConfig(config, parse(buffer), path)
+	const values = parse(buffer)
+	mergeConfig(config, values, path)
+	for (const [key, value] of Object.entries(values)) {
+		if (typeof value === 'string') {
+			pathSources.set(key, { path: resolve(sourceDirectory, value), value: config[key] })
+		}
+		else pathSources.delete(key)
+	}
 }
 
 function mergeConfig(config: Config, merge: Config, path: string, prepend = false, depth = 0)
